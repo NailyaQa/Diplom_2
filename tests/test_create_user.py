@@ -3,6 +3,7 @@ import allure
 
 from data.data import BASE_URL, REGISTER_USER_ENDPOINT
 from helpers.user_generator import generate_user_data
+from helpers.ingredient_helper import get_ingredient_ids
 
 
 class TestCreateUser:
@@ -19,34 +20,23 @@ class TestCreateUser:
             json=user_data
         )
 
-        assert response.status_code == 200
-        assert response.json()["success"] is True
-
         delete_user_after_test["access_token"] = (
             response.json()["accessToken"]
         )
+        
+        assert response.status_code == 200
+        assert response.json()["success"] is True
+
+       
 
     @allure.title("Создание уже зарегистрированного пользователя")
     def test_create_existing_user_returns_error(
         self,
-        delete_user_after_test
+        registered_user
     ):
-        user_data = generate_user_data()
-
-        first_response = requests.post(
-            f"{BASE_URL}{REGISTER_USER_ENDPOINT}",
-            json=user_data
-        )
-
-        assert first_response.status_code == 200
-
-        delete_user_after_test["access_token"] = (
-            first_response.json()["accessToken"]
-        )
-
         response = requests.post(
             f"{BASE_URL}{REGISTER_USER_ENDPOINT}",
-            json=user_data
+            json=registered_user
         )
 
         assert response.status_code == 403

@@ -4,6 +4,8 @@ import allure
 from data.data import BASE_URL
 from helpers.user_generator import generate_user_data
 from helpers.ingredient_helper import get_ingredient_ids
+from helpers.ingredient_helper import get_ingredient_ids
+from helpers.order_helper import create_order
 
 
 class TestCreateOrder:
@@ -13,29 +15,11 @@ class TestCreateOrder:
         self,
         delete_user_after_test
     ):
-        user_data = generate_user_data()
-
-        register_response = requests.post(
-            f"{BASE_URL}/api/auth/register",
-            json=user_data
-        )
-
-        assert register_response.status_code == 200
-
-        access_token = register_response.json()["accessToken"]
-
-        delete_user_after_test["access_token"] = access_token
-
         ingredient_ids = get_ingredient_ids()
 
-        response = requests.post(
-            f"{BASE_URL}/api/orders",
-            headers={
-                "Authorization": access_token
-            },
-            json={
-                "ingredients": ingredient_ids
-            }
+        response = create_order(
+            ingredient_ids,
+            delete_user_after_test
         )
 
         assert response.status_code == 200
